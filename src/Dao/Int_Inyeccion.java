@@ -18,6 +18,8 @@ public interface Int_Inyeccion {
     public ArrayList<String> getCombinacion(Connection c, String var);
 
     public ArrayList<String> getCorrida(Connection c, String var);
+    
+    Inyeccion getinfowith(Connection c, int lote);
 
     public boolean new_avanceinyeccion(Connection c, Inyeccion i);
 }

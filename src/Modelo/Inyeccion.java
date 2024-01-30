@@ -11,8 +11,40 @@ package Modelo;
  * @author GATEWAY1-
  */
 public class Inyeccion implements java.io.Serializable{
-    private int id_inyeccion,pares, estilo, corrida;
+    private int id_inyeccion,pares, estilo, corrida, corridacpt, id_prog, periodo, lote;
     private String fecha, combinacion, estatus;
+
+    public int getLote() {
+        return lote;
+    }
+
+    public void setLote(int lote) {
+        this.lote = lote;
+    }
+
+    public int getPeriodo() {
+        return periodo;
+    }
+
+    public void setPeriodo(int periodo) {
+        this.periodo = periodo;
+    }
+
+    public int getCorridacpt() {
+        return corridacpt;
+    }
+
+    public void setCorridacpt(int corridacpt) {
+        this.corridacpt = corridacpt;
+    }
+
+    public int getId_prog() {
+        return id_prog;
+    }
+
+    public void setId_prog(int id_prog) {
+        this.id_prog = id_prog;
+    }
 
     public int getId_inyeccion() {
         return id_inyeccion;

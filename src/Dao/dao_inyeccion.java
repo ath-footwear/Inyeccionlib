@@ -16,7 +16,7 @@ import java.util.ArrayList;
  */
 public class dao_inyeccion implements Int_Inyeccion {
 
-    private final sql_inyeccion s= new sql_inyeccion();
+    private final sql_inyeccion s = new sql_inyeccion();
 
     /**
      * Obtiene todas las combinaciones de acuerdo al estilo
@@ -53,6 +53,17 @@ public class dao_inyeccion implements Int_Inyeccion {
     @Override
     public boolean new_avanceinyeccion(Connection c, Inyeccion i) {
         return s.newAvanceinyeccion(c, i);
+    }
+
+    /**
+     *Obtiene toda la info del lote conforme al lote
+     * @param c
+     * @param lote
+     * @return
+     */
+    @Override
+    public Inyeccion getinfowith(Connection c, int lote) {
+        return s.getinfowith(c, lote);
     }
 
 }
