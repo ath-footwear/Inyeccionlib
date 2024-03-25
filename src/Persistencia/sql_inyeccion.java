@@ -21,6 +21,20 @@ import java.util.logging.Logger;
  */
 public class sql_inyeccion {
 
+    /**
+     * Funcion que solo se utiliza para finalizar la conexion sin repetir tanto
+     * codigo
+     *
+     * @param c
+     */
+    private void cerrarbd(Connection c) {
+        try {
+            c.close();
+        } catch (SQLException ex) {
+            Logger.getLogger(sql_inyeccion.class.getName()).log(Level.SEVERE, null, ex);
+        }
+    }
+
     public ArrayList<String> getcombinaciones(Connection c, String estilo) {
         ArrayList<String> arr = new ArrayList<>();
         try {
@@ -39,10 +53,11 @@ public class sql_inyeccion {
             }
             rs.close();
             st.close();
-            c.close();
         } catch (SQLException ex) {
             System.out.println(ex.getMessage());
             Logger.getLogger(sql_inyeccion.class.getName()).log(Level.SEVERE, null, ex);
+        } finally {
+            cerrarbd(c);
         }
         return arr;
     }
@@ -65,24 +80,92 @@ public class sql_inyeccion {
             }
             rs.close();
             st.close();
-            c.close();
         } catch (SQLException ex) {
             Logger.getLogger(sql_inyeccion.class.getName()).log(Level.SEVERE, null, ex);
+        } finally {
+            cerrarbd(c);
         }
         return arr;
+    }
+
+    public Inyeccion getinfowith(Connection c, int lote) {
+        Inyeccion I = null;
+        try {
+            PreparedStatement st;
+            ResultSet rs;
+            String sql = "select max(id_prog) id_prog,estilo,corrida,combinacion,corridacpt,years\n"
+                    + "from programa\n"
+                    + "where lote =?\n"
+                    + "group by estilo,corrida, combinacion,corridacpt,years";
+//            System.out.println(sql);
+            st = c.prepareStatement(sql);
+            st.setInt(1, lote);
+            rs = st.executeQuery();
+            while (rs.next()) {
+                I = new Inyeccion();
+                I.setId_prog(rs.getInt("id_prog"));
+                I.setEstilo(rs.getInt("estilo"));
+                I.setCorrida(rs.getInt("corrida"));
+                I.setCombinacion(rs.getString("combinacion"));
+                I.setCorridacpt(rs.getInt("corridacpt"));
+                I.setPeriodo(rs.getInt("years"));
+                I.setLote(lote);
+            }
+            rs.close();
+            st.close();
+        } catch (SQLException ex) {
+            Logger.getLogger(sql_inyeccion.class.getName()).log(Level.SEVERE, null, ex);
+        } finally {
+            cerrarbd(c);
+        }
+        return I;
     }
 
     public boolean newAvanceinyeccion(Connection c, Inyeccion i) {
         try {
             c.setAutoCommit(false);
             PreparedStatement st;
-            String sql="insert into inyeccion(estilo,combinacion,pares,corrida,fecha,estatus) "
+            String sql = "insert into inyeccion(id_prog,lote,estilo,combinacion,"
+                    + "pares,corrida,fecha,punto,estatus) "
+                    + "values(?,?,?,?,?,?,?,?,?)";
+            st = c.prepareStatement(sql);
+            st.setInt(1, i.getId_prog());
+            st.setInt(2, i.getLote());
+            st.setInt(3, i.getEstilo());
+            st.setString(4, i.getCombinacion());
+            st.setInt(5, i.getPares());
+            st.setInt(6, i.getCorrida());
+            st.setString(7, i.getFecha());
+            st.setString(8, i.getPunto());
+            st.setString(9, "1");
+            st.executeUpdate();
+            c.commit();
+            st.close();
+            return true;
+        } catch (SQLException ex) {
+            try {
+                c.rollback();
+                Logger.getLogger(sql_inyeccion.class.getName()).log(Level.SEVERE, null, ex);
+            } catch (SQLException ex1) {
+                Logger.getLogger(sql_inyeccion.class.getName()).log(Level.SEVERE, null, ex1);
+            }
+            return false;
+        } finally {
+            cerrarbd(c);
+        }
+    }
+
+    public boolean newAvanceDetalle(Connection c, Inyeccion i) {
+        try {
+            c.setAutoCommit(false);
+            PreparedStatement st;
+            String sql = "insert into detAvances(id_prog,lote,punto,cantidad,fecha,estatus) "
                     + "values(?,?,?,?,?,?)";
-            st=c.prepareStatement(sql);
-            st.setInt(1, i.getEstilo());
-            st.setString(2, i.getCombinacion());
-            st.setInt(3, i.getPares());
-            st.setInt(4, i.getCorrida());
+            st = c.prepareStatement(sql);
+            st.setInt(1, i.getId_prog());
+            st.setInt(2, i.getLote());
+            st.setString(3, i.getPunto());
+            st.setInt(4, i.getPares());
             st.setString(5, i.getFecha());
             st.setString(6, "1");
             st.executeUpdate();
@@ -98,11 +181,7 @@ public class sql_inyeccion {
             }
             return false;
         } finally {
-            try {
-                c.close();
-            } catch (SQLException ex1) {
-                Logger.getLogger(sql_inyeccion.class.getName()).log(Level.SEVERE, null, ex1);
-            }
+            cerrarbd(c);
         }
     }
 
