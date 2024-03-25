@@ -22,4 +22,6 @@ public interface Int_Inyeccion {
     Inyeccion getinfowith(Connection c, int lote);
 
     public boolean new_avanceinyeccion(Connection c, Inyeccion i);
+    
+    public boolean new_avancedetalle(Connection c, Inyeccion i);
 }

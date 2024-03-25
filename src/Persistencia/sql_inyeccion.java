@@ -24,7 +24,8 @@ public class sql_inyeccion {
     /**
      * Funcion que solo se utiliza para finalizar la conexion sin repetir tanto
      * codigo
-     * @param c 
+     *
+     * @param c
      */
     private void cerrarbd(Connection c) {
         try {
@@ -55,7 +56,7 @@ public class sql_inyeccion {
         } catch (SQLException ex) {
             System.out.println(ex.getMessage());
             Logger.getLogger(sql_inyeccion.class.getName()).log(Level.SEVERE, null, ex);
-        }finally{
+        } finally {
             cerrarbd(c);
         }
         return arr;
@@ -81,7 +82,7 @@ public class sql_inyeccion {
             st.close();
         } catch (SQLException ex) {
             Logger.getLogger(sql_inyeccion.class.getName()).log(Level.SEVERE, null, ex);
-        }finally{
+        } finally {
             cerrarbd(c);
         }
         return arr;
@@ -124,8 +125,9 @@ public class sql_inyeccion {
         try {
             c.setAutoCommit(false);
             PreparedStatement st;
-            String sql = "insert into inyeccion(id_prog,lote,estilo,combinacion,pares,corrida,fecha,estatus) "
-                    + "values(?,?,?,?,?,?,?,?)";
+            String sql = "insert into inyeccion(id_prog,lote,estilo,combinacion,"
+                    + "pares,corrida,fecha,punto,estatus) "
+                    + "values(?,?,?,?,?,?,?,?,?)";
             st = c.prepareStatement(sql);
             st.setInt(1, i.getId_prog());
             st.setInt(2, i.getLote());
@@ -134,7 +136,38 @@ public class sql_inyeccion {
             st.setInt(5, i.getPares());
             st.setInt(6, i.getCorrida());
             st.setString(7, i.getFecha());
-            st.setString(8, "1");
+            st.setString(8, i.getPunto());
+            st.setString(9, "1");
+            st.executeUpdate();
+            c.commit();
+            st.close();
+            return true;
+        } catch (SQLException ex) {
+            try {
+                c.rollback();
+                Logger.getLogger(sql_inyeccion.class.getName()).log(Level.SEVERE, null, ex);
+            } catch (SQLException ex1) {
+                Logger.getLogger(sql_inyeccion.class.getName()).log(Level.SEVERE, null, ex1);
+            }
+            return false;
+        } finally {
+            cerrarbd(c);
+        }
+    }
+
+    public boolean newAvanceDetalle(Connection c, Inyeccion i) {
+        try {
+            c.setAutoCommit(false);
+            PreparedStatement st;
+            String sql = "insert into detAvances(id_prog,lote,punto,cantidad,fecha,estatus) "
+                    + "values(?,?,?,?,?,?)";
+            st = c.prepareStatement(sql);
+            st.setInt(1, i.getId_prog());
+            st.setInt(2, i.getLote());
+            st.setString(3, i.getPunto());
+            st.setInt(4, i.getPares());
+            st.setString(5, i.getFecha());
+            st.setString(6, "1");
             st.executeUpdate();
             c.commit();
             st.close();
